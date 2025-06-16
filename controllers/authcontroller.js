@@ -4,8 +4,27 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-exports.authenticateUser = (req, res) => {
-  res.send("trying to authenticate here...");
+exports.authenticateUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await prisma.user.findUnique({
+    whrer: { email },
+  });
+  if (!user) return res.status(401).json("Invalid credentials");
+
+  const match = bcrypt.compare(password, user.password);
+  if (match) return res.status(401).json("Wrong password");
+
+  const token = jwt.sign(
+    {
+      userId: user.id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN }
+  );
+
+  res.json({ token });
 };
 
 exports.createNewUser = async (req, res) => {
@@ -46,3 +65,26 @@ exports.createNewUser = async (req, res) => {
 
   res.json({ token });
 };
+
+exports.authenticateToken = (req, res, next) => {
+  const token = req.headers["Authorization"].split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: "Forbidden" });
+
+    req.user = user;
+    next();
+  });
+};
+
+/*
+function authorizeRoles(...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    next();
+  };
+}
+*/ 
