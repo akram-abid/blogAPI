@@ -80,11 +80,19 @@ exports.authenticateToken = (req, res, next) => {
   }
   
   const token = authHeader.split(" ")[1];
+  console.log("Extracted token:", token);
+  
   if (!token) return res.status(401).json({ error: "Unauthorized" });
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: "Forbidden" });
+    if (err) {
+      return res.status(403).json({ 
+        error: "Forbidden in the auth",
+        details: err.message 
+      });
+    }
 
+    console.log("JWT verification successful, decoded user:", user);
     req.user = user;
     next();
   });

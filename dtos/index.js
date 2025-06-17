@@ -51,7 +51,7 @@ const schemas = {
   }),
 
   updateComment: Joi.object({
-    body: Joi.string().min(1).max(1000).required()
+    text: Joi.string().min(1).max(1000).required()
   })
 };
 

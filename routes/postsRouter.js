@@ -9,7 +9,7 @@ router.use(authController.authenticateToken);
 router.get("/", postsController.getAllPosts)
 router.post("/", validator.validateCreatePost, postsController.createPost);
 router.get("/:postId", postsController.getPostById)
-router.get("/:postId/comment", postsController.getPostComments)
+router.get("/:postId/comments", postsController.getPostComments)
 router.post("/:postId/comment", validator.validateCreateComment, postsController.createNewComment)
 router.put("/:postId", validator.validateUpdatePost, postsController.updatePost);
 router.delete("/:postId", postsController.deletePost);

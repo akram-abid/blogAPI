@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  //output   = "../generated/prisma"
 }
 
 datasource db {
@@ -17,11 +10,11 @@ datasource db {
 model User {
   id       String    @id @default(cuid())
   fullname String
-  email    String    @unique
   password String
   role     Role      @default(READER)
-  posts    Post[]
+  email    String    @unique
   comments Comment[]
+  posts    Post[]
 }
 
 model Post {
@@ -30,22 +23,22 @@ model Post {
   intro     String
   body      String
   image     String?
-  state     State     @default(DRAFT)
   authorId  String
-  author    User      @relation(fields: [authorId], references: [id])
-  comments  Comment[]
   createdAt DateTime  @default(now())
+  state     State     @default(DRAFT)
+  comments  Comment[]
+  author    User      @relation(fields: [authorId], references: [id])
 }
 
 model Comment {
   id          String   @id @default(cuid())
   text        String
   postId      String
-  post        Post     @relation(fields: [postId], references: [id])
   commentorID String
-  commentor   User     @relation(fields: [commentorID], references: [id])
   createdAt   DateTime @default(now())
   likes       Int      @default(0)
+  commentor   User     @relation(fields: [commentorID], references: [id])
+  post        Post     @relation(fields: [postId], references: [id])
 }
 
 enum Role {
