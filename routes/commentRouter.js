@@ -1,8 +1,8 @@
 const { Router } = require("express");
 const commentController = require("../controllers/commentController")
 const router =  Router();
-const validator = require("../dto/index")
-const authController = require("../controllers/authcontroller")
+const validator = require("../dtos/index")
+const authController = require("../controllers/authController")
 
 router.use(authController.authenticateToken);
 

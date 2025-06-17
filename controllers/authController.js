@@ -6,14 +6,17 @@ const prisma = new PrismaClient();
 
 exports.authenticateUser = async (req, res) => {
   const { fullname, email, password } = req.validatedData;
-
+  console.log("we are trying to fing this email ", email);
   const user = await prisma.user.findUnique({
-    whrer: { email },
+    where: {
+      email,
+    },
   });
+
   if (!user) return res.status(401).json("Invalid credentials");
 
-  const match = bcrypt.compare(password, user.password);
-  if (match) return res.status(401).json("Wrong password");
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) return res.status(401).json("Wrong password");
 
   const token = jwt.sign(
     {
@@ -67,8 +70,16 @@ exports.createNewUser = async (req, res) => {
 };
 
 exports.authenticateToken = (req, res, next) => {
-  console.log("authenticating and trying to verify token...")
-  const token = req.headers["Authorization"].split(" ")[1];
+  console.log("authenticating and trying to verify token...");
+  
+  const authHeader = req.headers["authorization"];
+  console.log("this is the whole authorization headers ", authHeader);
+  
+  if (!authHeader) {
+    return res.status(401).json({ error: "Authorization header missing" });
+  }
+  
+  const token = authHeader.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
@@ -88,4 +99,4 @@ function authorizeRoles(...roles) {
     next();
   };
 }
-*/ 
+*/

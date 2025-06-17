@@ -3,7 +3,7 @@ const path = require("node:path");
 require("dotenv").config();
 
 const authRouter = require("./routes/authRouter")
-const postsRouter = require("./routes/commentRouter")
+const postsRouter = require("./routes/postsRouter")
 const commentRouter = require("./routes/commentRouter")
 const usersRouter = require("./routes/usersRouter")
 
@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use("/api", authRouter)
+app.use("/api/auth", authRouter)
 app.use("/api/posts", postsRouter)
 app.use("/api/comments", commentRouter)
 app.use("/api/users", usersRouter)
