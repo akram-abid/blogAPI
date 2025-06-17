@@ -30,6 +30,7 @@ model Post {
   intro     String
   body      String
   image     String?
+  state     State     @default(UNPUBLISHED)
   authorId  String
   author    User      @relation(fields: [authorId], references: [id])
   comments  Comment[]
@@ -50,4 +51,9 @@ model Comment {
 enum Role {
   READER
   ADMIN
+}
+
+enum State {
+  PUBLISHED
+  UNPUBLISHED
 }
