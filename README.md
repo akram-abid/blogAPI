@@ -159,13 +159,3 @@ All errors are returned in this format:
 * Prisma + PostgreSQL
 * JWT Authentication
 * Joi Validation
-
----
-
-```
-
-Let me know if you want me to:
-- Add **setup instructions** (install, run, env setup)
-- Convert this to French or Arabic
-- Or generate a **Postman collection** for testing!
-```
