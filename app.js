@@ -5,6 +5,7 @@ require("dotenv").config();
 const authRouter = require("./routes/authRouter")
 const postsRouter = require("./routes/commentRouter")
 const commentRouter = require("./routes/commentRouter")
+const usersRouter = require("./routes/usersRouter")
 
 const app = express();
 
@@ -12,8 +13,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use("/api", authRouter)
-app.use("/posts", postsRouter)
-app.use("/comments", commentRouter)
+app.use("/api/posts", postsRouter)
+app.use("/api/comments", commentRouter)
+app.use("/api/users", usersRouter)
 
 const port = process.env.PORT || 4000
 
