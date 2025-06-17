@@ -5,7 +5,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.authenticateUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { fullname, email, password } = req.validatedData;
 
   const user = await prisma.user.findUnique({
     whrer: { email },
@@ -28,7 +28,7 @@ exports.authenticateUser = async (req, res) => {
 };
 
 exports.createNewUser = async (req, res) => {
-  const { fullname, email, password } = req.body;
+  const { fullname, email, password } = req.validatedData;
 
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -67,6 +67,7 @@ exports.createNewUser = async (req, res) => {
 };
 
 exports.authenticateToken = (req, res, next) => {
+  console.log("authenticating and trying to verify token...")
   const token = req.headers["Authorization"].split(" ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
 

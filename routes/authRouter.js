@@ -1,8 +1,9 @@
 const { Router } = require("express");
 const authController = require("../controllers/authcontroller")
 const router =  Router();
+const { validateRegister, validateLogin } = require('../dtos');
 
-router.post("/login", authController.authenticateUser)
-router.post("/signup", authController.createNewUser)
+router.post("/login", validateLogin, authController.authenticateUser)
+router.post("/signup", validateRegister, authController.createNewUser)
 
 module.exports = router
