@@ -3,16 +3,34 @@ const prisma = new PrismaClient();
 
 exports.getAllPosts = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const posts = await prisma.post.findMany({
       where: { state: "published" },
       orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
       include: {
         owner: { select: { fullname: true, id: true } },
         comments: true,
       },
     });
 
-    res.status(200).json({ posts });
+    const totalPosts = await prisma.post.count({
+      where: { state: "published" },
+    });
+
+    res.status(200).json({
+      posts,
+      pagination: {
+        page,
+        limit,
+        totalPosts,
+        totalPages: Math.ceil(totalPosts / limit),
+      },
+    });
   } catch (error) {
     console.error("Error fetching posts:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -146,6 +164,83 @@ exports.deletePost = async (req, res) => {
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     console.error("Delete post error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getPostComments = async (req, res) => {
+  const { postId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  try {
+    const comments = await prisma.comment.findMany({
+      where: { postId: Number(postId) },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+      include: {
+        owner: { select: { fullname: true, id: true } },
+      },
+    });
+
+    const totalComments = await prisma.comment.count({
+      where: { postId: Number(postId) },
+    });
+
+    res.status(200).json({
+      comments,
+      pagination: {
+        page,
+        limit,
+        totalComments,
+        totalPages: Math.ceil(totalComments / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+exports.getUnpublishedPosts = async (req, res) => {
+  const userRole = req.user.role;
+
+  if (userRole !== "admin") {
+    return res.status(403).json({ error: "Access denied. Admins only." });
+  }
+
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: { state: "draft" },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+      include: {
+        owner: { select: { fullname: true, id: true } },
+        comments: true,
+      },
+    });
+
+    const totalPosts = await prisma.post.count({
+      where: { state: "draft" },
+    });
+
+    res.status(200).json({
+      posts,
+      pagination: {
+        page,
+        limit,
+        totalPosts,
+        totalPages: Math.ceil(totalPosts / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching unpublished posts:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
